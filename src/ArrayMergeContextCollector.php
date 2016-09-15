@@ -15,7 +15,7 @@ namespace Brain\Context;
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class WpTemplateContextCollector implements ContextCollectorInterface
+final class ArrayMergeContextCollector implements ContextCollectorInterface
 {
 
     /**

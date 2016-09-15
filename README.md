@@ -152,7 +152,7 @@ that, as you might have guessed, is used to add providers to the collector.
 In short, when `provide()` method is called, it returns the context from all the providers that
 were added to it.
 
-Tha package ships with a single implementation `WpTemplateContextCollector` that uses `array_merge`
+Tha package ships with a single implementation `ArrayMergeContextCollector` that uses `array_merge`
 to build a context array from the arrays "provided" by the added providers that "accept" the given query.
 
 # Context Loader
