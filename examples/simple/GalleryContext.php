@@ -47,7 +47,7 @@ class GalleryContext implements ContextProviderInterface
             ]
         ]);
 
-        if (!$gallery_query) {
+        if (!$gallery_query->have_posts()) {
             return [];
         }
 
