@@ -148,5 +148,4 @@ class ArrayMergeContextCollectorTest extends TestCase
 
         assertSame($expected, $collector->provide());
     }
-
 }

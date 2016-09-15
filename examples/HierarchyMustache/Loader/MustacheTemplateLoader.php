@@ -37,7 +37,7 @@ class MustacheTemplateLoader implements TemplateLoaderInterface
      * @param \Mustache_Engine $engine
      * @param array $data
      */
-    public function __construct( \Mustache_Engine $engine, array $data = [] )
+    public function __construct(\Mustache_Engine $engine, array $data = [])
     {
         $this->engine = $engine;
         $this->data = $data;
@@ -47,11 +47,11 @@ class MustacheTemplateLoader implements TemplateLoaderInterface
      * @param string $templatePath
      * @return string
      */
-    public function load( $templatePath )
+    public function load($templatePath)
     {
-        $data = apply_filters( 'mustache_template_context', $this->data, $templatePath);
-        $template = file_get_contents( $templatePath );
+        $data = apply_filters('mustache_template_context', $this->data, $templatePath);
+        $template = file_get_contents($templatePath);
 
-        return $this->engine->render( $template, $data );
+        return $this->engine->render($template, $data);
     }
 }

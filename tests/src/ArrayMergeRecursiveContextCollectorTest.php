@@ -80,7 +80,7 @@ class ArrayMergeRecursiveContextCollectorTest extends TestCase
             'color'   => 'yellow'
         ]);
 
-        $context_c->shouldReceive('update')->once()->andReturnUsing(function(array $context) {
+        $context_c->shouldReceive('update')->once()->andReturnUsing(function (array $context) {
             $context['message'] = implode(', ', (array) $context['message']);
 
             return $context;
@@ -105,5 +105,4 @@ class ArrayMergeRecursiveContextCollectorTest extends TestCase
 
         assertSame($expected, $collector->provide());
     }
-
 }

@@ -159,5 +159,4 @@ class WpContextLoaderTest extends TestCase
 
         assertEquals($expected, WpContextLoader::load($query));
     }
-
 }

@@ -10,7 +10,6 @@
 
 namespace Brain\Context;
 
-
 interface ContextCollectorInterface extends ContextProviderInterface
 {
 
