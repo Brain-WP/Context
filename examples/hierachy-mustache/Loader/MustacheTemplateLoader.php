@@ -10,15 +10,15 @@
 
 namespace Brain\Context\Examples\HierarchyMustache\Loader;
 
-/**
- * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
- * @package Context
- * @license http://opensource.org/licenses/MIT MIT
- */
-
 use Brain\Hierarchy\Loader\TemplateLoaderInterface;
 use Mustache_Engine;
 
+/**
+ * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
+ * @package Context
+ * @subpackage Examples
+ * @license http://opensource.org/licenses/MIT MIT
+ */
 class MustacheTemplateLoader implements TemplateLoaderInterface
 {
 
@@ -32,6 +32,11 @@ class MustacheTemplateLoader implements TemplateLoaderInterface
      */
     private $data;
 
+    /**
+     * MustacheTemplateLoader constructor.
+     * @param \Mustache_Engine $engine
+     * @param array $data
+     */
     public function __construct( \Mustache_Engine $engine, array $data = [] )
     {
         $this->engine = $engine;
@@ -40,7 +45,7 @@ class MustacheTemplateLoader implements TemplateLoaderInterface
 
     /**
      * @param string $templatePath
-     * @return mixed
+     * @return string
      */
     public function load( $templatePath )
     {

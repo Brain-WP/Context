@@ -28,7 +28,6 @@
 
 namespace Brain\Context\Examples\HierarchyMustache;
 
-use Brain\Context\Examples\HierarchyMustache\Loader\MustacheTemplateLoader;
 use Brain\Context\WpContextLoader;
 use Brain\Context\WpTemplateContextCollector;
 use Brain\Hierarchy\Finder\SubfolderTemplateFinder;
@@ -62,7 +61,7 @@ add_action('template_redirect', function () {
     $context = WpContextLoader::load($wp_query);
 
     // Create an instance of our mustache template loader
-    $loader = new MustacheTemplateLoader(new \Mustache_Engine(), $context);
+    $loader = new Loader\MustacheTemplateLoader(new \Mustache_Engine(), $context);
 
     // ...and an instance of Brain\Hierarchy QueryTemplate
     $queryTemplate = new QueryTemplate($finder, $loader);
