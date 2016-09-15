@@ -27,7 +27,7 @@ Context
 
 ----------
 
-# What, Why?
+# What, why?
 
 If you use WordPress the "canonical" way, then you will never need this.
 
@@ -52,7 +52,7 @@ There are two "things" in this package:
 - Context providers
 - Context collector
 
-# Context Providers
+# Context providers
 
 Context Providers are classes that implements `ContextProviderInterface` or `UpdatableContextProviderInterface`
 (which is an extension of the former).
@@ -97,9 +97,9 @@ class HomePageContext implements ContextProviderInterface
     public function provide()
     {
         return [
-            'welcome_msg'  => 'Hi, welcome to my awesome website!',
-            'register_page => get_page_by_title('Register'),
-            'in_evidence'  => get_posts(['meta_key' => 'in_evidence', 'meta_value' => 1]),
+            'welcome_msg'   => 'Hi, welcome to my awesome website!',
+            'register_page' => get_page_by_title('Register'),
+            'in_evidence'   => get_posts(['meta_key' => 'in_evidence', 'meta_value' => 1]),
         ];
     }
 }
@@ -109,11 +109,11 @@ This example implementation can be used to pass some data to templates when the 
 the front page.
 
 We don't have to worry that `provide()` method can contain expensive routines, it will only be
-run if `accepts()` return `true`, so only when we need the data.
+ran if `accepts()` returns `true`, so only when data provided is actually needed.
 
 In real world, there will be more and more "providers" like this.
 
-There are things you want to pass to all templates? Create a provider that just return `true` in
+Are there things you want to pass to _all_ templates? Create a provider that just returns `true` in
 its `accept` method :)
 
 The other provider interface, `UpdatableContextProviderInterface`, besides the two methods inherited 
@@ -128,14 +128,14 @@ from its parent, has another method:
 ```
 
 
-This method will receive the currently collected context from other provide, giving the chance to 
+This method will receive the currently collected context from other providers, having the chance to 
 edit it.
 
-# Context Collectors
+# Context collectors
 
-Context Collectors are object that collects context form providers. Their interface
-`ContextCollectorInterface` extends `ContextProviderInterface`, so a collector has the same two methods
-of any other provider, plus another method:
+Context collectors are objects that collect context from context providers.
+Their interface, `ContextCollectorInterface` extends `ContextProviderInterface`, so a collector has
+the same two methods of any other provider, plus another method:
 
 ```php
     /**
@@ -150,29 +150,30 @@ that, as you might have guessed, is used to add providers to the collector.
 In short, when `provide()` method is called, it returns the context from all the providers that
 were added to it.
 
-Tha package ships with one implementation `WpTemplateContextCollector` that uses `array_merge` to 
-build a context array from the array "provided" by the added providers.
+Tha package ships with a single implementation `WpTemplateContextCollector` that uses `array_merge`
+to build a context array from the arrays "provided" by the added providers that "accept" the given query.
 
 # Context Loader
 
 When I said that this package contains "two" things, I lied.
 
-It also contain a third thing, a "context loader" that contains a single method, that provide a
-convenient way to glue together the "pieces" in the package.
+It also contain a third "thing": a "context loader". It is a class with a single static method, 
+nothing more than an helper to glue together the "pieces" in the package.
 
-The class is named `WpContextLoader` and the method is `load()` that accepts a query object and return
-a complete "collected" context for it.
+The class is named `WpContextLoader` and its only method is `load()` that accepts a query object
+and return a complete "collected" context for it.
 
 # Examples
 
 I think best way to explain code, is to show the code. This is why I added to this repository
-**two examples**
+**two examples**:
 
-- One is very basic, as no dependencies, and show the bare-minimum usage of this package
-- The second example make use of a template engine (mustache) and of Brain\Hierarchy to build a
+- One is very basic, has no dependencies, and shows the bare-minimum usage of this package
+- The second example makes use of a template engine (mustache) and of Brain\Hierarchy to build a
   quite advanced WordPress template rendering workflow.
 
-Examples are available in the ["/examples" folder](https://github.com/Brain-WP/Context/tree/master/examples) of the repo.
+Examples are available in the ["/examples" folder](https://github.com/Brain-WP/Context/tree/master/examples)
+of the repo.
 
 # Requirements
 
