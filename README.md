@@ -84,7 +84,8 @@ class HomePageContext implements ContextProviderInterface
 {
 
     /**
-     * @inheritdoc
+     * @param \WP_Query $query
+     * @return bool
      */
     public function accept(\WP_Query $query)
     {
@@ -121,6 +122,7 @@ from its parent, has another method:
 
 ```php
     /**
+     * @param array $context
      * @return array
      */
     public function update(array $context);
