@@ -23,7 +23,7 @@
  * NOTE: I'm assuming that an autoloader (Composer?) is in place.
  */
 
-namespace Brain\Context\Examples\Base;
+namespace Brain\Context\Examples\Simple;
 
 use Brain\Context\WpContextLoader;
 use Brain\Context\WpTemplateContextCollector;

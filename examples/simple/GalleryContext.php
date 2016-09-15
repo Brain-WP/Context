@@ -15,6 +15,7 @@ use Brain\Context\ContextProviderInterface;
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package Context
+ * @subpackage Examples
  * @license http://opensource.org/licenses/MIT MIT
  */
 class GalleryContext implements ContextProviderInterface
