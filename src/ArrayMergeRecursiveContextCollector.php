@@ -15,49 +15,10 @@ namespace Brain\Context;
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class WpTemplateContextCollector implements ContextCollectorInterface
+final class ArrayMergeRecursiveContextCollector implements ContextCollectorInterface
 {
 
-    /**
-     * @var \SplQueue
-     */
-    private $providers;
-
-    /**
-     * @var \WP_Query
-     */
-    private $query;
-
-    public function __construct()
-    {
-        $this->providers = new \SplQueue();
-    }
-
-    /**
-     * @param ContextProviderInterface $provider
-     * @return \Brain\Context\ContextCollectorInterface
-     */
-    public function addProvider(ContextProviderInterface $provider)
-    {
-        $this->providers->enqueue($provider);
-
-        // By using this function it is possible to remove the just-added provider
-        // by calling `SplQueue::pop()` on the passed providers object
-        do_action('brain.context.added', $provider, $this->providers);
-
-        return $this;
-    }
-
-    /**
-     * @param \WP_Query $query
-     * @return bool
-     */
-    public function accept(\WP_Query $query)
-    {
-        $this->query = $query;
-
-        return true;
-    }
+    use ArrayMergeContextCollectorTrait;
 
     /**
      * @return array
@@ -76,7 +37,7 @@ final class WpTemplateContextCollector implements ContextCollectorInterface
                 continue;
             }
 
-            $context = array_merge($context, $provider->provide());
+            $context = array_merge_recursive($context, $provider->provide());
             if ($provider instanceof UpdatableContextProviderInterface) {
                 $context = $provider->update($context);
             }

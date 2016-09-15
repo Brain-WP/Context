@@ -13,7 +13,7 @@ namespace Brain\Context\Tests;
 use Brain\Context\ContextProviderInterface;
 use Brain\Context\UpdatableContextProviderInterface;
 use Brain\Context\WpContextLoader;
-use Brain\Context\WpTemplateContextCollector;
+use Brain\Context\ArrayMergeContextCollector;
 use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
 
@@ -121,7 +121,7 @@ class WpContextLoaderTest extends TestCase
         Actions::expectFired('brain.context.providers')
             ->once()
             ->whenHappen(
-                function (WpTemplateContextCollector $C) use ($archive, $page, $singular, $post) {
+                function (ArrayMergeContextCollector $C) use ($archive, $page, $singular, $post) {
                     $C
                         ->addProvider($archive)
                         ->addProvider($page)

@@ -29,12 +29,12 @@
 namespace Brain\Context\Examples\HierarchyMustache;
 
 use Brain\Context\WpContextLoader;
-use Brain\Context\WpTemplateContextCollector;
+use Brain\Context\ArrayMergeContextCollector;
 use Brain\Hierarchy\Finder\SubfolderTemplateFinder;
 use Brain\Hierarchy\QueryTemplate;
 
 // Let's add all our providers, the collector will pull context from them when the query fits.
-add_action('brain.context.providers', function (WpTemplateContextCollector $collector) {
+add_action('brain.context.providers', function (ArrayMergeContextCollector $collector) {
 
     $collector
         ->addProvider(new Providers\HomePageContext())

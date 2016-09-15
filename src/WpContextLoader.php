@@ -27,12 +27,16 @@ class WpContextLoader
      * to collector using `brain.context.providers` hook.
      *
      * @param \WP_Query $query
+     * @param ContextCollectorInterface $collector
      * @return array
      */
-    public static function load(\WP_Query $query)
+    public static function load(\WP_Query $query, ContextCollectorInterface $collector = null)
     {
-        $collector = new WpTemplateContextCollector();
-        $collector->accept($query);
+        $collector or $collector = new ArrayMergeContextCollector();
+
+        if (!$collector->accept($query)) {
+            return [];
+        }
 
         // Use this hook to add context provider calling `addProvider()` method on the
         // passed collector object

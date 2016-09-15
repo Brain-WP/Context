@@ -12,7 +12,7 @@ namespace Brain\Context\Tests;
 
 use Andrew\Proxy;
 use Brain\Context\ContextProviderInterface;
-use Brain\Context\WpTemplateContextCollector;
+use Brain\Context\ArrayMergeContextCollector;
 use Brain\Monkey\WP\Actions;
 
 /**
@@ -20,12 +20,12 @@ use Brain\Monkey\WP\Actions;
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
  */
-class WpTemplateContextCollectorTest extends TestCase
+class ArrayMergeContextCollectorTest extends TestCase
 {
 
     public function testAddProvider()
     {
-        $collector = new WpTemplateContextCollector();
+        $collector = new ArrayMergeContextCollector();
 
         $context_a = \Mockery::mock(ContextProviderInterface::class);
         $context_b = clone $context_a;
@@ -60,7 +60,7 @@ class WpTemplateContextCollectorTest extends TestCase
 
     public function testAccept()
     {
-        $collector = new WpTemplateContextCollector();
+        $collector = new ArrayMergeContextCollector();
 
         $query = \Mockery::mock('WP_Query');
         $accepted = $collector->accept($query);
@@ -75,7 +75,7 @@ class WpTemplateContextCollectorTest extends TestCase
 
     public function testProvideDoNothingWithNoQuery()
     {
-        $collector = new WpTemplateContextCollector();
+        $collector = new ArrayMergeContextCollector();
 
         $query = \Mockery::mock('WP_Query');
 
@@ -102,7 +102,7 @@ class WpTemplateContextCollectorTest extends TestCase
 
     public function testProvide()
     {
-        $collector = new WpTemplateContextCollector();
+        $collector = new ArrayMergeContextCollector();
 
         $query = \Mockery::mock('WP_Query');
 
