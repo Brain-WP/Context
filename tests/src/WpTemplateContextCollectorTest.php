@@ -73,6 +73,33 @@ class WpTemplateContextCollectorTest extends TestCase
         assertSame($query, $saved_query);
     }
 
+    public function testProvideDoNothingWithNoQuery()
+    {
+        $collector = new WpTemplateContextCollector();
+
+        $query = \Mockery::mock('WP_Query');
+
+        $context = \Mockery::mock(ContextProviderInterface::class);
+        $context->shouldReceive('accept')
+            ->zeroOrMoreTimes()
+            ->with($query)
+            ->andReturn(true);
+        $context->shouldReceive('provide')
+            ->zeroOrMoreTimes()
+            ->andReturn([
+            'message' => 'Hello!',
+            'letters' => ['a']
+        ]);
+
+        Actions::expectFired('brain.context.added')
+            ->once()
+            ->with($context, \Mockery::type('SplQueue'));
+
+        $collector->addProvider($context);
+
+        assertSame([], $collector->provide());
+    }
+
     public function testProvide()
     {
         $collector = new WpTemplateContextCollector();
