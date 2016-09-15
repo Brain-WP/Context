@@ -15,8 +15,9 @@ namespace Brain\Context;
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class ArrayMergeContextCollector implements ContextCollectorInterface
+final class ArrayMergeRecursiveContextCollector implements ContextCollectorInterface
 {
+
     use ArrayMergeContextCollectorTrait;
 
     /**
@@ -36,7 +37,7 @@ final class ArrayMergeContextCollector implements ContextCollectorInterface
                 continue;
             }
 
-            $context = array_merge($context, $provider->provide());
+            $context = array_merge_recursive($context, $provider->provide());
             if ($provider instanceof UpdatableContextProviderInterface) {
                 $context = $provider->update($context);
             }

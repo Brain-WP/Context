@@ -33,7 +33,10 @@ class WpContextLoader
     public static function load(\WP_Query $query, ContextCollectorInterface $collector = null)
     {
         $collector or $collector = new ArrayMergeContextCollector();
-        $collector->accept($query);
+
+        if (!$collector->accept($query)) {
+            return [];
+        }
 
         // Use this hook to add context provider calling `addProvider()` method on the
         // passed collector object
