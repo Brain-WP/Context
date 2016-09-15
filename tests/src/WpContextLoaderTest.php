@@ -10,6 +10,7 @@
 
 namespace Brain\Context\Tests;
 
+use Brain\Context\ContextCollectorInterface;
 use Brain\Context\ContextProviderInterface;
 use Brain\Context\UpdatableContextProviderInterface;
 use Brain\Context\WpContextLoader;
@@ -24,6 +25,17 @@ use Brain\Monkey\WP\Filters;
  */
 class WpContextLoaderTest extends TestCase
 {
+
+    public function testLoadNothingIfCollectorNotAcceptQuery()
+    {
+        $query = \Mockery::mock('WP_Query');
+
+        $collector = \Mockery::mock(ContextCollectorInterface::class);
+        $collector->shouldReceive('accept')->once()->with($query)->andReturn(false);
+        $collector->shouldReceive('provide')->never();
+
+        assertSame([], WpContextLoader::load($query, $collector));
+    }
 
     public function testLoad()
     {
