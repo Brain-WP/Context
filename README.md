@@ -172,6 +172,7 @@ I think best way to explain code, is to show the code. This is why I added to th
 - The second example make use of a template engine (mustache) and of Brain\Hierarchy to build a
   quite advanced WordPress template rendering workflow.
 
+Examples are available in the ["/examples" folder](https://github.com/Brain-WP/Context/tree/master/examples) of the repo.
 
 # Requirements
 
