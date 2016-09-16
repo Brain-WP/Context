@@ -10,11 +10,11 @@
 
 namespace Brain\Context\Tests;
 
-use Brain\Context\ContextCollectorInterface;
-use Brain\Context\ContextProviderInterface;
-use Brain\Context\UpdatableContextProviderInterface;
+use Brain\Context\Collector\ArrayMergeContextCollector;
+use Brain\Context\Collector\ContextCollectorInterface;
+use Brain\Context\Provider\ContextProviderInterface;
+use Brain\Context\Provider\UpdatableContextProviderInterface;
 use Brain\Context\WpContextLoader;
-use Brain\Context\ArrayMergeContextCollector;
 use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
 

@@ -8,11 +8,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Brain\Context\Tests;
+namespace Brain\Context\Tests\Collector;
 
-use Brain\Context\ArrayMergeRecursiveContextCollector;
-use Brain\Context\ContextProviderInterface;
-use Brain\Context\UpdatableContextProviderInterface;
+use Andrew\Proxy;
+use Brain\Context\Provider\ContextProviderInterface;
+use Brain\Context\Collector\ArrayMergeContextCollector;
+use Brain\Context\Tests\TestCase;
 use Brain\Monkey\WP\Actions;
 
 /**
@@ -20,12 +21,62 @@ use Brain\Monkey\WP\Actions;
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
  */
-class ArrayMergeRecursiveContextCollectorTest extends TestCase
+class ArrayMergeContextCollectorTest extends TestCase
 {
+
+    public function testAddProvider()
+    {
+        $collector = new ArrayMergeContextCollector();
+
+        $context_a = \Mockery::mock(ContextProviderInterface::class);
+        $context_b = clone $context_a;
+        $context_c = clone $context_b;
+
+        $context_a->id = 'a';
+        $context_b->id = 'b';
+        $context_c->id = 'c';
+
+        Actions::expectFired('brain.context.added')
+            ->times(3)
+            ->with(\Mockery::type(ContextProviderInterface::class), \Mockery::type('SplQueue'))
+            ->whenHappen(function ($context, \SplQueue $providers) {
+                if ($context->id === 'c') {
+                    $providers->pop();
+                }
+            });
+
+        $collector
+            ->addProvider($context_a)
+            ->addProvider($context_b)
+            ->addProvider($context_c);
+
+        $proxy = new Proxy($collector);
+        /** @var \SplQueue $providers */
+        $providers = $proxy->providers;
+
+        assertCount(2, $providers);
+        assertSame('a', $providers->dequeue()->id);
+        assertSame('b', $providers->dequeue()->id);
+    }
+
+    public function testAccept()
+    {
+        $collector = new ArrayMergeContextCollector();
+
+        $query = \Mockery::mock('WP_Query');
+        $accepted = $collector->accept($query);
+
+        $proxy = new Proxy($collector);
+        /** @var \WP_Query $saved_query */
+        $saved_query = $proxy->query;
+
+        assertTrue($accepted);
+        assertSame($query, $saved_query);
+    }
 
     public function testProvideDoNothingWithNoQuery()
     {
-        $collector = new ArrayMergeRecursiveContextCollector();
+        $collector = new ArrayMergeContextCollector();
 
         $query = \Mockery::mock('WP_Query');
 
@@ -37,9 +88,9 @@ class ArrayMergeRecursiveContextCollectorTest extends TestCase
         $context->shouldReceive('provide')
             ->zeroOrMoreTimes()
             ->andReturn([
-                'message' => 'Hello!',
-                'letters' => ['a']
-            ]);
+            'message' => 'Hello!',
+            'letters' => ['a']
+        ]);
 
         Actions::expectFired('brain.context.added')
             ->once()
@@ -52,39 +103,32 @@ class ArrayMergeRecursiveContextCollectorTest extends TestCase
 
     public function testProvide()
     {
-        $collector = new ArrayMergeRecursiveContextCollector();
+        $collector = new ArrayMergeContextCollector();
 
         $query = \Mockery::mock('WP_Query');
 
         $context_a = \Mockery::mock(ContextProviderInterface::class);
         $context_b = clone $context_a;
-        $context_c = \Mockery::mock(UpdatableContextProviderInterface::class);
+        $context_c = clone $context_b;
 
         $context_a->shouldReceive('accept')->once()->with($query)->andReturn(true);
         $context_b->shouldReceive('accept')->once()->with($query)->andReturn(false);
         $context_c->shouldReceive('accept')->once()->with($query)->andReturn(true);
 
         $context_a->shouldReceive('provide')->once()->andReturn([
-            'message' => 'Hello from A!',
+            'message' => 'Hello!',
             'letters' => ['a']
         ]);
 
         $context_b->shouldReceive('provide')->once()->andReturn([
-            'message' => 'Goodbye from B!',
+            'message' => 'Goodbye!',
             'meh'     => 'meh'
         ]);
 
         $context_c->shouldReceive('provide')->once()->andReturn([
-            'message' => 'Hello from C!',
             'letters' => ['b', 'c', 'd'],
             'color'   => 'yellow'
         ]);
-
-        $context_c->shouldReceive('update')->once()->andReturnUsing(function (array $context) {
-            $context['message'] = implode(', ', (array) $context['message']);
-
-            return $context;
-        });
 
         Actions::expectFired('brain.context.added')
             ->times(3)
@@ -98,8 +142,8 @@ class ArrayMergeRecursiveContextCollectorTest extends TestCase
         $collector->accept($query);
 
         $expected = [
-            'message' => 'Hello from A!, Hello from C!',
-            'letters' => ['a', 'b', 'c', 'd'],
+            'message' => 'Hello!',
+            'letters' => ['b', 'c', 'd'],
             'color'   => 'yellow'
         ];
 
