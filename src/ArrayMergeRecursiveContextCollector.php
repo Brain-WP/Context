@@ -31,6 +31,6 @@ final class ArrayMergeRecursiveContextCollector implements ContextCollectorInter
 
         $merger = new QueryContextIteratorMerger($this->query);
 
-        return $merger->merge_recursive($this->providers);
+        return $merger->mergeRecursive($this->providers);
     }
 }

@@ -45,7 +45,7 @@ class QueryContextIteratorMerger
      * @param \Iterator $providers
      * @return array
      */
-    public function merge_recursive(\Iterator $providers)
+    public function mergeRecursive(\Iterator $providers)
     {
         return $this->doMerge($providers, 'array_merge_recursive');
     }
