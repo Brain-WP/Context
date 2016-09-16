@@ -8,21 +8,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Brain\Context;
+namespace Brain\Context\QueryPredicate;
 
 /**
  * This class is an helper to obtain a callable (in form of invokable object) that receives a
  * query object as single argument, and return true or false based on the query object satisfy
- * one or conditional tag.
+ * some conditional tags.
  *
- * When many conditional tags are given, it can work either in `AND` or in `OR` mode.
+ * It can work either in `AND` or in `OR` mode.
  * In `AND` mode, the predicate returns true if all conditions are satisfied.
  * In `OR` mode, the predicate returns true if any of conditions is satisfied.
  *
  * For example:
  *
  * <code>
- * $predicate = new QueryPredicate(['is_front_page', 'is_page'], QueryPredicate::MODE_AND);
+ * $predicate = new Predicates(['is_front_page', 'is_page'], Predicates::MODE_AND);
  * $result = $predicate($wp_query);
  * </code>
  *
@@ -30,18 +30,11 @@ namespace Brain\Context;
  * On the contrary, if the code is:
  *
  * <code>
- * $predicate = new QueryPredicate(['is_front_page', 'is_page'], QueryPredicate::MODE_OR);
+ * $predicate = new Predicates(['is_front_page', 'is_page'], Predicates::MODE_OR);
  * $result = $predicate($wp_query);
  * </code>
  *
  * `$result` is true if the query object is a front page *or* a page.
- *
- * Note that a single predicate as string is perfectly valid argument:
- *
- * <code>
- * $predicate = new QueryPredicate('is_front_page');
- * $result = $predicate($wp_query);
- * </code>
  *
  * In this case there's no need to pass a mode flag because it is irrelevant with one single tag.
  *
@@ -49,7 +42,7 @@ namespace Brain\Context;
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class QueryPredicate
+final class Predicates
 {
 
     const MODE_AND = 1;
@@ -66,14 +59,12 @@ final class QueryPredicate
     private $flags = 0;
 
     /**
-     * @param string|string[] $conditional
+     * @param string[] $conditions
      * @param int $flags
      */
-    public function __construct($conditional, $flags = self::MODE_OR)
+    public function __construct(array $conditions, $flags = self::MODE_OR)
     {
-        is_string($conditional) and $conditional = [$conditional];
-
-        $this->conditions = is_array($conditional) ? array_filter($conditional, 'is_string') : [];
+        $this->conditions = array_filter($conditions, 'is_string');
         is_int($flags) and $this->flags = $flags;
     }
 
@@ -101,8 +92,8 @@ final class QueryPredicate
             $accept = $is_callable ? $method() : false;
 
             // when in OR mode, we return true at first success
-            if ($accept && ! $is_and) {
-                return TRUE;
+            if ($accept && !$is_and) {
+                return true;
             }
 
             // when in AND mode, we return false at first failure
