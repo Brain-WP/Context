@@ -18,7 +18,7 @@ namespace Brain\Context;
 final class ArrayMergeRecursiveContextCollector implements ContextCollectorInterface
 {
 
-    use ArrayMergeContextCollectorTrait;
+    use ContextCollectorTrait;
 
     /**
      * @return array
@@ -29,20 +29,8 @@ final class ArrayMergeRecursiveContextCollector implements ContextCollectorInter
             return [];
         }
 
-        $context = [];
-        while (!$this->providers->isEmpty()) {
-            /** @var ContextProviderInterface|UpdatableContextProviderInterface $provider */
-            $provider = $this->providers->dequeue();
-            if (!$provider->accept($this->query)) {
-                continue;
-            }
+        $merger = new QueryContextIteratorMerger($this->query);
 
-            $context = array_merge_recursive($context, $provider->provide());
-            if ($provider instanceof UpdatableContextProviderInterface) {
-                $context = $provider->update($context);
-            }
-        }
-
-        return $context;
+        return $merger->merge_recursive($this->providers);
     }
 }

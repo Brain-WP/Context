@@ -15,7 +15,7 @@ namespace Brain\Context;
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
  */
-trait ArrayMergeContextCollectorTrait
+trait ContextCollectorTrait
 {
 
     /**

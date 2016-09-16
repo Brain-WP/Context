@@ -14,10 +14,13 @@ namespace Brain\Context;
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
+ *
+ * @property \SplQueue $providers
+ * @property \WP_Query $query
  */
 final class ArrayMergeContextCollector implements ContextCollectorInterface
 {
-    use ArrayMergeContextCollectorTrait;
+    use ContextCollectorTrait;
 
     /**
      * @return array
@@ -28,20 +31,8 @@ final class ArrayMergeContextCollector implements ContextCollectorInterface
             return [];
         }
 
-        $context = [];
-        while (!$this->providers->isEmpty()) {
-            /** @var ContextProviderInterface|UpdatableContextProviderInterface $provider */
-            $provider = $this->providers->dequeue();
-            if (!$provider->accept($this->query)) {
-                continue;
-            }
+        $merger = new QueryContextIteratorMerger($this->query);
 
-            $context = array_merge($context, $provider->provide());
-            if ($provider instanceof UpdatableContextProviderInterface) {
-                $context = $provider->update($context);
-            }
-        }
-
-        return $context;
+        return $merger->merge($this->providers);
     }
 }
