@@ -8,24 +8,29 @@
  * file that was distributed with this source code.
  */
 
-namespace Brain\Context;
+namespace Brain\Context\Provider;
 
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
+ *
+ * @property callable $acceptCallback
  */
-interface ContextProviderInterface
+trait CallbackAcceptTrait
 {
 
     /**
      * @param \WP_Query $query
      * @return bool
+     *
+     * @see ContextProviderInterface::accept()
      */
-    public function accept(\WP_Query $query);
+    public function accept(\WP_Query $query)
+    {
+        $callback = $this->acceptCallback;
+        $accept = $callback($query);
 
-    /**
-     * @return array
-     */
-    public function provide();
+        return (bool)filter_var($accept, FILTER_VALIDATE_BOOLEAN);
+    }
 }

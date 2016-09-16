@@ -8,7 +8,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Brain\Context;
+namespace Brain\Context\Collector;
+
+use Brain\Context\ProviderIteratorMerger;
 
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
@@ -31,7 +33,7 @@ final class ArrayMergeContextCollector implements ContextCollectorInterface
             return [];
         }
 
-        $merger = new QueryContextIteratorMerger($this->query);
+        $merger = new ProviderIteratorMerger($this->query);
 
         return $merger->merge($this->providers);
     }

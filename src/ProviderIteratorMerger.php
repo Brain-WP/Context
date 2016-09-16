@@ -10,12 +10,15 @@
 
 namespace Brain\Context;
 
+use Brain\Context\Provider\ContextProviderInterface;
+use Brain\Context\Provider\UpdatableContextProviderInterface;
+
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
  */
-class QueryContextIteratorMerger
+class ProviderIteratorMerger
 {
 
     /**

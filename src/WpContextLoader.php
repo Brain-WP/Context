@@ -10,6 +10,9 @@
 
 namespace Brain\Context;
 
+use Brain\Context\Collector\ArrayMergeContextCollector;
+use Brain\Context\Collector\ContextCollectorInterface;
+
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package Context
@@ -27,7 +30,7 @@ class WpContextLoader
      * to collector using `brain.context.providers` hook.
      *
      * @param \WP_Query $query
-     * @param ContextCollectorInterface $collector
+     * @param \Brain\Context\Collector\ContextCollectorInterface $collector
      * @return array
      */
     public static function load(\WP_Query $query, ContextCollectorInterface $collector = null)

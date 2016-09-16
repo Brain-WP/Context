@@ -8,14 +8,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Brain\Context;
+namespace Brain\Context\Collector;
+
+use Brain\Context\Provider\ContextProviderInterface;
 
 interface ContextCollectorInterface extends ContextProviderInterface
 {
 
     /**
-     * @param ContextProviderInterface $provider
-     * @return \Brain\Context\ContextCollectorInterface
+     * @param \Brain\Context\Provider\ContextProviderInterface $provider
+     * @return \Brain\Context\Collector\ContextCollectorInterface
      */
     public function addProvider(ContextProviderInterface $provider);
 }

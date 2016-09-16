@@ -8,20 +8,27 @@
  * file that was distributed with this source code.
  */
 
-namespace Brain\Context;
+namespace Brain\Context\Provider;
 
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
  */
-final class ArrayContextProvider implements ContextProviderInterface
+final class SubqueryContextProvider implements ContextProviderInterface
 {
+
+    use CallbackAcceptTrait;
+
+    /**
+     * @var string
+     */
+    private $key;
 
     /**
      * @var array
      */
-    private $context = [];
+    private $queryArgs;
 
     /**
      * @var callable
@@ -29,25 +36,18 @@ final class ArrayContextProvider implements ContextProviderInterface
     private $acceptCallback = '__return_true';
 
     /**
-     * @param array $context
+     * @param string $key
+     * @param array $queryArgs
      * @param callable $acceptCallback
      */
-    public function __construct(array $context = [], callable $acceptCallback = '__return_true')
-    {
-        $this->context = $context;
+    public function __construct(
+        $key,
+        array $queryArgs = [],
+        callable $acceptCallback = '__return_true'
+    ) {
+        $this->key = $key;
+        $this->queryArgs = $queryArgs;
         $this->acceptCallback = $acceptCallback;
-    }
-
-    /**
-     * @param \WP_Query $query
-     * @return bool
-     */
-    public function accept(\WP_Query $query)
-    {
-        $callback = $this->acceptCallback;
-        $accept = $callback($query);
-
-        return (bool)filter_var($accept, FILTER_VALIDATE_BOOLEAN);
     }
 
     /**
@@ -55,6 +55,6 @@ final class ArrayContextProvider implements ContextProviderInterface
      */
     public function provide()
     {
-        return $this->context;
+        return [$this->key => new \WP_Query($this->queryArgs)];
     }
 }

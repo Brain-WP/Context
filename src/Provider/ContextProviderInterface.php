@@ -8,19 +8,24 @@
  * file that was distributed with this source code.
  */
 
-namespace Brain\Context;
+namespace Brain\Context\Provider;
 
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
  */
-interface UpdatableContextProviderInterface extends ContextProviderInterface
+interface ContextProviderInterface
 {
 
     /**
-     * @param array $context
+     * @param \WP_Query $query
+     * @return bool
+     */
+    public function accept(\WP_Query $query);
+
+    /**
      * @return array
      */
-    public function update(array $context);
+    public function provide();
 }
