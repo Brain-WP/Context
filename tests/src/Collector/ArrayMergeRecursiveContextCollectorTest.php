@@ -82,7 +82,7 @@ class ArrayMergeRecursiveContextCollectorTest extends TestCase
         ]);
 
         $context_c->shouldReceive('update')->once()->andReturnUsing(function (array $context) {
-            $context['message'] = implode(', ', (array) $context['message']);
+            $context['message'] = implode(', ', (array)$context['message']);
 
             return $context;
         });

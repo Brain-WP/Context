@@ -59,7 +59,7 @@ final class Merge
      */
     public function __construct(array $predicates, $flags = Predicates::MODE_AND)
     {
-        $this->predicates = array_filter($predicates, function(callable $predicate) {
+        $this->predicates = array_filter($predicates, function (callable $predicate) {
             return $predicate;
         });
 
@@ -80,7 +80,6 @@ final class Merge
 
         /** @var callable $predicate */
         foreach ($this->predicates as $predicate) {
-
             $accept = $predicate($query);
 
             // when in OR mode, we return true at first success

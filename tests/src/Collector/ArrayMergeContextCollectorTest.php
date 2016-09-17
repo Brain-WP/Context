@@ -88,9 +88,9 @@ class ArrayMergeContextCollectorTest extends TestCase
         $context->shouldReceive('provide')
             ->zeroOrMoreTimes()
             ->andReturn([
-            'message' => 'Hello!',
-            'letters' => ['a']
-        ]);
+                'message' => 'Hello!',
+                'letters' => ['a']
+            ]);
 
         Actions::expectFired('brain.context.added')
             ->once()

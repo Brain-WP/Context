@@ -16,7 +16,6 @@ namespace Brain\Context\QueryPredicate;
  * passed to the invoke method satisfy that conditional tag.
  *
  * Is optionally possible to pass an argument that will passed to the conditional tag.
-
  * For example:
  *
  * <code>
