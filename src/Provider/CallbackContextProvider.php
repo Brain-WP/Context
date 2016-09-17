@@ -18,15 +18,12 @@ namespace Brain\Context\Provider;
 final class CallbackContextProvider implements ContextProviderInterface
 {
 
+    use CallbackAcceptTrait;
+
     /**
      * @var callable
      */
     private $provider;
-
-    /**
-     * @var \WP_Query
-     */
-    private $query;
 
     /**
      * @var callable
@@ -44,29 +41,12 @@ final class CallbackContextProvider implements ContextProviderInterface
     }
 
     /**
-     * @param \WP_Query $query
-     * @return bool
-     */
-    public function accept(\WP_Query $query)
-    {
-        $callback = $this->acceptCallback;
-        $accept = $callback($query);
-        $this->query = $query;
-
-        return (bool)filter_var($accept, FILTER_VALIDATE_BOOLEAN);
-    }
-
-    /**
      * @return array
      */
     public function provide()
     {
-        if (!$this->query instanceof \WP_Query) {
-            return [];
-        }
-
         $provider = $this->provider;
-        $context = $provider($this->query);
+        $context = $provider();
 
         return is_array($context) ? $context : [];
     }

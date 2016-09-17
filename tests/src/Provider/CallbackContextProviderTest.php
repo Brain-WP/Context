@@ -26,27 +26,6 @@ class CallbackContextProviderTest extends TestCase
             return ['foo', 'bar'];
         });
 
-        $query = \Mockery::mock('WP_Query');
-
-        assertTrue($provider->accept($query));
-        assertSame(['foo', 'bar'], $provider->provide());
-    }
-
-    public function testAcceptCallback()
-    {
-        $query = \Mockery::mock('WP_Query');
-        $query_2 = clone $query;
-
-        $cb = function (\WP_Query $wp_query) use ($query) {
-            return $wp_query === $query;
-        };
-
-        $provider = new CallbackContextProvider(function () {
-            return ['foo', 'bar'];
-        }, $cb);
-
-        assertTrue($provider->accept($query));
-        assertFalse($provider->accept($query_2));
         assertSame(['foo', 'bar'], $provider->provide());
     }
 }
