@@ -43,11 +43,11 @@ final class CommentsContextProvider implements ContextProviderInterface
     public function __construct(
         $key,
         array $queryArgs = [],
-        callable $acceptCallback = '__return_true'
+        callable $acceptCallback = null
     ) {
-        $this->key = $key;
+        $this->key = is_string($key) && $key ? $key : 'comments';
         $this->queryArgs = $queryArgs;
-        $this->acceptCallback = $acceptCallback;
+        $acceptCallback and $this->acceptCallback = $acceptCallback;
     }
 
     /**

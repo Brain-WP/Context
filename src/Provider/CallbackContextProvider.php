@@ -37,10 +37,10 @@ final class CallbackContextProvider implements ContextProviderInterface
      * @param callable $provider
      * @param callable $acceptCallback
      */
-    public function __construct(callable $provider, callable $acceptCallback = '__return_true')
+    public function __construct(callable $provider, callable $acceptCallback = null)
     {
         $this->provider = $provider;
-        $this->acceptCallback = $acceptCallback;
+        $acceptCallback and $this->acceptCallback = $acceptCallback;
     }
 
     /**

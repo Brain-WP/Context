@@ -34,10 +34,10 @@ final class ArrayContextProvider implements ContextProviderInterface
      * @param array $context
      * @param callable $acceptCallback
      */
-    public function __construct(array $context = [], callable $acceptCallback = '__return_true')
+    public function __construct(array $context = [], callable $acceptCallback = null)
     {
         $this->context = $context;
-        $this->acceptCallback = $acceptCallback;
+        $acceptCallback and $this->acceptCallback = $acceptCallback;
     }
 
     /**
