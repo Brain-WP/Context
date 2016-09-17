@@ -8,10 +8,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Brain\Context\Tests;
+namespace Brain\Context\Tests\Provider;
 
 use Brain\Context\Provider\CommentsContextProvider;
 use Brain\Monkey\Functions;
+use Brain\Context\Tests\TestCase;
 
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
