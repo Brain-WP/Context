@@ -23,6 +23,8 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
         Monkey::setUpWP();
+        Monkey\Functions::when('__return_true')->justReturn(true);
+        Monkey\Functions::when('__return_false')->justReturn(false);
     }
 
     protected function tearDown()
