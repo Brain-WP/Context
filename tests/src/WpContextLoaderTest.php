@@ -12,9 +12,13 @@ namespace Brain\Context\Tests;
 
 use Brain\Context\Collector\ArrayMergeContextCollector;
 use Brain\Context\Collector\ContextCollectorInterface;
+use Brain\Context\Provider\ArrayContextProvider;
 use Brain\Context\Provider\ContextProviderInterface;
+use Brain\Context\Provider\PostsContextProvider;
 use Brain\Context\Provider\UpdatableContextProviderInterface;
+use Brain\Context\QueryPredicate;
 use Brain\Context\WpContextLoader;
+use Brain\Monkey\Functions;
 use Brain\Monkey\WP\Actions;
 use Brain\Monkey\WP\Filters;
 
@@ -40,10 +44,14 @@ class WpContextLoaderTest extends TestCase
     public function testLoad()
     {
         $query = \Mockery::mock('WP_Query');
-        $query->shouldReceive('is_archive')->zeroOrMoreTimes()->andReturn(false);
-        $query->shouldReceive('is_singular')->zeroOrMoreTimes()->andReturn(true);
-        $query->shouldReceive('is_post')->zeroOrMoreTimes()->andReturn(true);
-        $query->shouldReceive('is_page')->zeroOrMoreTimes()->andReturn(false);
+        $query->shouldReceive('is_archive')->andReturn(false);
+        $query->shouldReceive('is_single')->with()->andReturn(true);
+        $query->shouldReceive('is_singular')->withNoArgs()->andReturn(true);
+        $query->shouldReceive('is_singular')->with('product')->andReturn(false);
+        $query->shouldReceive('is_post')->andReturn(true);
+        $query->shouldReceive('is_page')->andReturn(false);
+        $query->shouldReceive('is_search')->andReturn(true);
+        $query->shouldReceive('is_front_page')->andReturn(false);
 
         $archive = \Mockery::mock(ContextProviderInterface::class);
         $page = clone $archive;
@@ -130,15 +138,39 @@ class WpContextLoaderTest extends TestCase
                 return $context;
             });
 
+        Functions::when('get_posts')->justReturn(['1' => ['post 1'], '2' => ['post 2']]);
+
+        $predicate = new QueryPredicate\Merge([
+            new QueryPredicate\Predicates(['is_single', 'is_search']),
+            new QueryPredicate\Negate(new QueryPredicate\Predicate('is_singular', 'product'))
+        ]);
+
+        $is_front_page = new QueryPredicate\Predicate('is_front_page');
+
+        $collected = new ArrayMergeContextCollector();
+        $collected->addProvider(new PostsContextProvider('_posts', [], $predicate));
+        $collected->addProvider(new ArrayContextProvider(['_frontpage' => '???'], $is_front_page));
+        $collected->addProvider(new ArrayContextProvider(
+            ['_frontpage' => '!!!'],
+            new QueryPredicate\Negate($is_front_page)
+        ));
+
         Actions::expectFired('brain.context.providers')
             ->once()
             ->whenHappen(
-                function (ArrayMergeContextCollector $C) use ($archive, $page, $singular, $post) {
+                function (ArrayMergeContextCollector $C) use (
+                    $archive,
+                    $page,
+                    $singular,
+                    $post,
+                    $collected
+                ) {
                     $C
                         ->addProvider($archive)
                         ->addProvider($page)
                         ->addProvider($singular)
-                        ->addProvider($post);
+                        ->addProvider($post)
+                        ->addProvider($collected);
                 }
             );
 
@@ -154,7 +186,9 @@ class WpContextLoaderTest extends TestCase
             'post'        => 'post',
             'singular'    => 'singular',
             'description' => 'This is a post!!!',
-            'post_ids'    => [9, 10, 11, 12]
+            'post_ids'    => [9, 10, 11, 12],
+            '_posts'      => ['1' => ['post 1'], '2' => ['post 2']],
+            '_frontpage'  => '!!!',
         ];
 
         assertEquals($expected, WpContextLoader::load($query));
