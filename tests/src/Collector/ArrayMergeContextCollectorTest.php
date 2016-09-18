@@ -74,6 +74,21 @@ class ArrayMergeContextCollectorTest extends TestCase
         assertSame($query, $saved_query);
     }
 
+    public function testAcceptCallback()
+    {
+        $collector = new ArrayMergeContextCollector('__return_false');
+
+        $query = \Mockery::mock('WP_Query');
+        $accepted = $collector->accept($query);
+
+        $proxy = new Proxy($collector);
+        /** @var \WP_Query $saved_query */
+        $saved_query = $proxy->query;
+
+        assertFalse($accepted);
+        assertSame($query, $saved_query);
+    }
+
     public function testProvideDoNothingWithNoQuery()
     {
         $collector = new ArrayMergeContextCollector();

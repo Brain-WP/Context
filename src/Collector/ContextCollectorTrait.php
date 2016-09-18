@@ -30,9 +30,12 @@ trait ContextCollectorTrait
      */
     private $query;
 
-    public function __construct()
+    private $acceptCallback = '__return_true';
+
+    public function __construct(callable $acceptCallback = null)
     {
         $this->providers = new \SplQueue();
+        $acceptCallback and $this->acceptCallback = $acceptCallback;
     }
 
     /**
@@ -60,6 +63,8 @@ trait ContextCollectorTrait
     {
         $this->query = $query;
 
-        return true;
+        $acceptCallback = $this->acceptCallback;
+
+        return $acceptCallback($query);
     }
 }
