@@ -16,6 +16,9 @@ use Brain\Context\ProviderIteratorMerger;
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
+ *
+ * @property \Iterator $providers
+ * @property \WP_Query $query
  */
 final class ArrayMergeRecursiveContextCollector implements ContextCollectorInterface
 {
