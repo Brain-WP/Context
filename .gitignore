@@ -2,3 +2,4 @@
 /phpunit.xml
 build/
 vendor/
+.phpunit.result.cache

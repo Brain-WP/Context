@@ -1,4 +1,5 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
 /*
  * This file is part of the Context package.
  *
@@ -8,19 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Brain\Context;
+
+use Psr\Log\LoggerInterface;
 
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
  */
-interface UpdatableContextProviderInterface extends ContextProviderInterface
+interface ProviderFactory
 {
-
     /**
-     * @param array $context
-     * @return array
+     * @param \WP_Query $query
+     * @param LoggerInterface $logger
+     * @return Provider|null
      */
-    public function update(array $context);
+    public function create(\WP_Query $query, LoggerInterface $logger): ?Provider;
 }

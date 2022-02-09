@@ -1,4 +1,5 @@
-<?php # -*- coding: utf-8 -*-
+<?php
+
 /*
  * This file is part of the Context package.
  *
@@ -8,24 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Brain\Context;
+
+use Psr\Log\LoggerInterface;
 
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @package Context
  * @license http://opensource.org/licenses/MIT MIT
  */
-interface ContextProviderInterface
+interface Provider
 {
-
     /**
      * @param \WP_Query $query
-     * @return bool
+     * @param LoggerInterface $logger
+     * @return array|null
      */
-    public function accept(\WP_Query $query);
-
-    /**
-     * @return array
-     */
-    public function provide();
+    public function provide(\WP_Query $query, LoggerInterface $logger): ?array;
 }

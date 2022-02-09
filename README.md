@@ -1,196 +1,202 @@
-Context
-=========
+# Context
 
-> Context is package that aims to collect "context" to pass to templates based on a query object.
-> Best paired with a template engine. And maybe with [Hierarchy](https://github.com/Brain-WP/Hierarchy).
+Context is package that aims to collect "context" to pass to templates based on a query object.
+
+**Best paired with a template engine**. And maybe with [Hierarchy](https://github.com/Brain-WP/Hierarchy).
 
 ----------
 
-[![travis-ci status](https://img.shields.io/travis/Brain-WP/Context.svg?style=flat-square)](https://travis-ci.org/Brain-WP/Context)
+[![PHP Quality Assurance](https://github.com/Brain-WP/Context/actions/workflows/php-qa.yml/badge.svg?branch=master)](https://github.com/Brain-WP/Context/actions/workflows/php-qa.yml)
 [![codecov.io](https://img.shields.io/codecov/c/github/Brain-WP/Context.svg?style=flat-square)](http://codecov.io/github/Brain-WP/Context?branch=master)
 [![license](https://img.shields.io/packagist/l/brain/context.svg?style=flat-square)](http://opensource.org/licenses/MIT)
 [![release](https://img.shields.io/github/release/Brain-WP/Context.svg?style=flat-square)](https://github.com/Brain-WP/Context/releases/latest)
 
 ----------
 
-# TOC
+## Quick start
 
-- [What, Why?](#what-why)
-- [An assumption: context is based on query](#an-assumption-context-is-based-on-query)
-- [Context Providers](#context-providers)
-- [Context Collectors](#context-collectors)
-- [Context Loader](#context-loader)
-- [Examples](#examples)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [License](#license)
-
-----------
-
-# What, why?
-
-If you use WordPress the "canonical" way, then you will never need this.
-
-Feel free to close tab, it was a pleasure, anyway.
-
-If you use a template engine with WordPress then, you may probably know what I'm going to talk about.
-
-Most of template engines, "render" templates by using some "context", which often means replace some
-placeholders with some values provided (context).
-
-This package aims to solve the question "where that context comes from"?
- 
-# An assumption: context is based on query
-
-This package makes the assumption that the context to pass to templates is based on a `WP_Query`.
-
-Most of the times it will probably be the "main" query, but it is not enforced (nor assumed) anywhere
-in the package.
-
-There are two "things" in this package:
-
-- Context providers
-- Context collector
-
-# Context providers
-
-Context Providers are classes that implements `ContextProviderInterface` or `UpdatableContextProviderInterface`
-(which is an extension of the former).
-
-`ContextProviderInterface` has just to methods:
+Let's assume a couple of classed designed to provide context for the homepage and the singular view,
+respectively:
 
 ```php
-    /**
-     * @param \WP_Query $query
-     * @return bool
-     */
-    public function accept(\WP_Query $query);
+use Brain\Context;
 
-    /**
-     * @return array
-     */
-    public function provide();
-```
-
-The `accept()` method, receives a query object and has to return `true` or `false`.
-
-When it returns `false` the context provided is completely ignored, when it returns `true` the context
-will be "collected".
-
-Better explained with an example:
-
-```php
-class HomePageContext implements ContextProviderInterface
+class HomepageContext implements Context\ProviderFactory
 {
-
-    /**
-     * @param \WP_Query $query
-     * @return bool
-     */
-    public function accept(\WP_Query $query)
+    public function create(\WP_Query $query, LoggerInterface $logger): ?Provider
     {
-        return $query->is_front_page();
+        return Context\Provider\ArrayMerge::new(fn() => $query->is_front_page())
+            ->addProvider(new MyHeroProvider())
+            ->addProvider(new Context\Provider\Posts(['posts_per_page' => 5], 'latest_posts'));
     }
+}
 
-    /**
-     * @return array
-     */
-    public function provide()
+class SingularContext implements Context\ProviderFactory
+{
+    public function create(\WP_Query $query, LoggerInterface $logger): ?Provider
     {
-        return [
-            'welcome_msg'   => 'Hi, welcome to my awesome website!',
-            'register_page' => get_page_by_title('Register'),
-            'in_evidence'   => get_posts(['meta_key' => 'in_evidence', 'meta_value' => 1]),
-        ];
+        return Context\Provider\ArrayMerge::new(fn() => $query->is_singular())
+            ->addProvider(new Context\Provider\ByCallback(fn() => ['post' => $query->post]))
+            ->addProvider(new Context\Provider\Comments(['post_id' => $query->post->ID]));
     }
 }
 ```
 
-This example implementation can be used to pass some data to templates when the current query is for
-the front page.
-
-We don't have to worry that `provide()` method can contain expensive routines, it will only be
-ran if `accepts()` returns `true`, so only when data provided is actually needed.
-
-In real world, there will be more and more "providers" like this.
-
-Are there things you want to pass to _all_ templates? Create a provider that just returns `true` in
-its `accept` method :)
-
-The other provider interface, `UpdatableContextProviderInterface`, besides the two methods inherited 
-from its parent, has another method:
+Now we can make use of the `Context` class to generate the context for our templates:
 
 ```php
-    /**
-     * @param array $context
-     * @return array
-     */
-    public function update(array $context);
+namespace MyTheme;
+
+use Brain\Context;
+
+add_action('template_redirect', function () {
+    
+    $context = Context\Context::new()
+        ->withProviderFactory(new HomepageContext())
+        ->withProviderFactory(new SingularContext())
+        ->provide();
+        
+    // pass context to templates here ...
+});
+```
+
+`Context` class emit the action `"brain.context.providers" that can be used to add providers from
+different places:
+
+```php
+namespace MyTheme;
+
+use Brain\Context;
+
+add_action('brain.context.providers', function (Context\Context $context) {
+    $context
+        ->withProviderFactory(new HomepageContext())
+        ->withProviderFactory(new SingularContext());
+});
+
+add_action('template_redirect', function () {
+    $context = Context\Context::new()->provide();
+    // pass context to templates here ...
+});
+```
+
+## Examples using Hierarchy
+
+Here's an example of using context in combination with [Brain Hierarchy](https://github.com/Brain-WP/Hierarchy) 
+to render mustache templates passing them context.
+
+```php
+namespace My\Theme;
+
+use Brain\Hierarchy\{Finder, Loader, QueryTemplate};
+use Brain\Context;
+
+class MustacheTemplateLoader implements Loader\Loader
+{
+   private $engine;
+
+   public function __construct(\Mustache_Engine $engine)
+   {
+      $this->engine = $engine;
+   }
+
+   public function load(string $templatePath): string
+   {
+        // It will be possible to hook 'brain.context.providers' to add context providers
+        $data = Context\Context::new()
+            ->convertEntitiesToPlainObjects()
+            ->forwardGlobals()
+            ->provide();
+
+        return $this->engine->render(file_get_contents($templatePath), $data);
+   }
 }
+
+add_action('template_redirect', function() {
+    if (!QueryTemplate::mainQueryTemplateAllowed()) {
+        return;
+    }
+
+    $queryTemplate = new QueryTemplate(
+        new Finder\BySubfolder('templates', 'mustache'),
+        new MustacheTemplateLoader(new \Mustache_Engine())
+    );
+
+    $content = $queryTemplate->loadTemplate(null, true, $found);
+    $found and die($content);
+});
 ```
 
+Above is *all* the necessary code to render `*.mustache` templates from a `/templates` subfolder
+in current theme (or parent theme, if any), according to WP template hierarchy, passing to templates
+context data that can be extended via ad-hoc "view context" classes which will implement 
+`Context\ProviderFactory` interface.
 
-This method will receive the currently collected context from other providers, having the chance to 
-edit it.
 
-# Context collectors
+## Providers
 
-Context collectors are objects that collect context from context providers.
-Their interface, `ContextCollectorInterface` extends `ContextProviderInterface`, so a collector has
-the same two methods of any other provider, plus another method:
+### Composite providers
+
+The "Quick start" section above uses `Context\Provider\ArrayMerge` class to "merge" several 
+providers.
+
+Besides that class, there's also a `Context\Provider\ArrayMergeRecursive` "composite" provider.
+
+### Atomic providers
+
+The "composite" providers merge multiple "atomic" providers that can be either custom (anything 
+implementing `Context\Provider`) or one of the shipped provider classes:
+
+- `ByArray` - which provides a given array as-is
+- `ByCallback` - which provides an array returned by a given callback
+- `Comments` - which provides an array of comments using given comment query arguments
+- `Posts` - which provides an array of posts using given post query arguments
+- `Subquery` - which provides a `WP_Query` instance using given query arguments
+- `Terms` - which provides an array of comments using given taxonomy terms query arguments
+- `Users` - which provides an array of comments using given user query arguments
+
+
+### Custom providers
+
+The `Context\Provider` interface has a single method:
 
 ```php
-    /**
-     * @param ContextProviderInterface $provider
-     * @return \Brain\Context\ContextCollectorInterface
-     */
-    public function addProvider(ContextProviderInterface $provider);
+public function provide(\WP_Query $query, LoggerInterface $logger): ?array;
 ```
 
-that, as you might have guessed, is used to add providers to the collector.
+Which can be implemented to build custom providers. In the case the provider should not be used
+based on conditions, it can return `null`.
 
-In short, when `provide()` method is called, it returns the context from all the providers that
-were added to it.
-
-Tha package ships with a two implementations:
-
- - `ArrayMergeContextCollector`
- - `ArrayMergeRecursiveContextCollector`
-
-they are pretty identical, but first uses `array_merge`, the second `array_merge_recursive` to build 
-the context array from the arrays "provided" by the added providers that "accepts" the given query.
-
-# Context Loader
-
-When I said that this package contains "two" things, I lied.
-
-It also contain a third "thing": a "context loader". It is a class with a single static method, 
-nothing more than an helper to glue together the "pieces" in the package.
-
-The class is named `WpContextLoader` and its only method is `load()` that accepts a query object
-and return a complete "collected" context for it.
-
-# Examples
-
-I think best way to explain code, is to show the code. This is why I added to this repository
-**two examples**:
-
-- One is very basic, has no dependencies, and shows the bare-minimum usage of this package
-- The second example makes use of a template engine (mustache) and of Brain\Hierarchy to build a
-  quite advanced WordPress template rendering workflow.
-
-Examples are available in the ["/examples" folder](https://github.com/Brain-WP/Context/tree/master/examples)
-of the repo.
-
-# Requirements
-
-Context requires **PHP 5.5+** and [Composer](https://getcomposer.org/) to be installed.
+The given PSR-3 logger interface can be used to log errors and distinguish a provider that returns
+null due to errors form another that returns `null` because, for example, not targeting the current 
+query. 
 
 
-# Installation
+## Logger
+
+All providers support a PSR-3 logger. `Context` class implements PSR-3 `LoggerAwareInterface`, so
+it is possible to call `setLogger` when instantiating it.
+
+There's also a `"brain.context.logger"` action that passes a callback that can be used to set the
+logger:
+
+```php
+add_action('brain.context.logger', function (callable $setter) {
+    $setter(new MyPsr3Logger());
+});
+```
+
+
+## Requirements
+
+Context requires **PHP 7.1+** and [Composer](https://getcomposer.org/) to be installed.
+
+
+## Installation
 
 Best served by Composer, available on Packagist with name [`brain/context`](https://packagist.org/packages/brain/context).
 
-# License
+
+## License
 
 Context is released under MIT.
