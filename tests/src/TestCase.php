@@ -1,35 +1,44 @@
 <?php
+
 /*
  * This file is part of the Context package.
  *
- * (c) Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
+ * (c) Giuseppe Mazzapica
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Brain\Context\Tests;
 
-use PHPUnit_Framework_TestCase;
 use Brain\Monkey;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 
 /**
  * @author  Giuseppe Mazzapica <giuseppe.mazzapica@gmail.com>
  * @license http://opensource.org/licenses/MIT MIT
  */
-abstract class TestCase extends PHPUnit_Framework_TestCase
+abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    protected function setUp()
+    use MockeryPHPUnitIntegration;
+
+    /**
+     * @return void
+     */
+    protected function setUp(): void
     {
         parent::setUp();
-        Monkey::setUpWP();
-        Monkey\Functions::when('__return_true')->justReturn(true);
-        Monkey\Functions::when('__return_false')->justReturn(false);
+        Monkey\setUp();
     }
 
-    protected function tearDown()
+    /**
+     * @return void
+     */
+    protected function tearDown(): void
     {
-        Monkey::tearDownWP();
+        Monkey\tearDown();
         parent::tearDown();
     }
 }
