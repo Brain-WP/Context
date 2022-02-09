@@ -92,7 +92,7 @@ jobs:
                 run: ./vendor/bin/phpunit --testsuite=unit ${{ ((env.USE_COVERAGE == 'yes') && '--coverage-clover=coverage.xml') || '--no-coverage' }}
 
             -   name: Update codecov.io
-                uses: codecov/codecov-action@v1
-                if: ${{ env.USE_COVERAGE == 'yes' }}
+                uses: codecov/codecov-action@v2
+                if: ${{ (env.USE_COVERAGE == 'yes') && (github.ref == 'refs/heads/master') }}
                 with:
                     file: ./coverage.xml
